@@ -1,4 +1,5 @@
 import "../scss/styles.scss";
+import * as bootstrap from 'bootstrap'
 
 function createTodoElement(todoText: string): HTMLElement {
   const li = document.createElement("li");
