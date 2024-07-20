@@ -1,23 +1,74 @@
-@import "bootstrap/scss/bootstrap";
-
+// Base styles
 body {
-  background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
 }
 
-h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #343a40;
-  text-align: center;
-  margin-bottom: 2rem;
+// Mobile view adjustments
+@media (max-width: 767px) {
+  .list-group-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .form-check-input {
+    margin-right: 0.5rem;
+  }
+
+  .task-text {
+    flex-grow: 1;
+  }
 }
 
-.list-group-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+// Larger viewports adjustments
+@media (min-width: 768px) {
+  .d-md-none {
+    display: none !important;
+  }
 
-.finish-btn {
-  margin-left: 0.5rem;
+  .d-md-flex {
+    display: flex !important;
+  }
+
+  .row {
+    display: flex;
+    justify-content: center; /* Centers the columns horizontally */
+    align-items: flex-start; /* Aligns columns to the top */
+    margin: 0 auto; /* Centers the row within its container */
+  }
+
+  .col-md-5 {
+    max-width: 500px; /* Adjust width of columns as needed */
+    margin: 0 15px; /* Adds spacing between columns */
+  }
+
+  .form-control {
+    font-size: 1.1rem; /* Increases font size for larger input */
+    padding: 0.75rem 1.25rem; /* Adjusts padding */
+    border-radius: 0.375rem; /* Adjusts border radius if needed */
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .list-group-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .form-check-input {
+    margin-right: 1rem; /* Adds margin to the right of the checkbox */
+  }
+
+  .task-text {
+    flex-grow: 1;
+  }
+
+  .row > div {
+    padding: 0 15px;
+  }
+
+  h2.text-center {
+    text-align: center;
+  }
 }
