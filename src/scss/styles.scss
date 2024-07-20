@@ -56,6 +56,17 @@ body {
     justify-content: space-between;
   }
 
+  .edit-btn {
+    margin-left: 0.5rem;
+    border: none;
+    background-color: #6c757d; // Bootstrap secondary color
+    color: white;
+  }
+
+  .edit-btn:hover {
+    background-color: #5a6268; // Darker shade on hover
+  }
+
   .form-check-input {
     margin-right: 1rem; /* Adds margin to the right of the checkbox */
   }
