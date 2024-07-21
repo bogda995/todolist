@@ -6,6 +6,11 @@ body {
 // Mobile view adjustments
 @media (max-width: 767px) {
   .list-group-item {
+    .btn {
+      padding: 0.25rem 0.3rem;
+      font-size: 0.7rem; // Even smaller font size
+      margin-left: 0.1rem; // Reduced space between buttons
+    }
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -18,6 +23,10 @@ body {
   .task-text {
     flex-grow: 1;
   }
+
+  .btn {
+    margin: 0.25rem 0; // Small margin to separate buttons from each other
+  }
 }
 
 // Larger viewports adjustments
@@ -26,39 +35,92 @@ body {
     display: none !important;
   }
 
+  .task-row{
+    margin: 0;
+    padding: 1rem; /* Example of additional styling */
+    background-color: #f9f9f9; /* Example of additional styling */
+  }
+
   .d-md-flex {
     display: flex !important;
   }
 
   .row {
     display: flex;
-    justify-content: center; /* Centers the columns horizontally */
-    align-items: flex-start; /* Aligns columns to the top */
-    margin: 0 auto; /* Centers the row within its container */
+    justify-content: space-between;
+    align-items: start;
+    // margin: 1rem 5rem;
   }
 
   .col-md-5 {
-    max-width: 500px; /* Adjust width of columns as needed */
-    margin: 0 15px; /* Adds spacing between columns */
+    max-width: 25rem; // Increased max-width to provide more space
+    // margin: 2rem 5rem;
   }
 
   .form-control {
-    font-size: 1.1rem; /* Increases font size for larger input */
-    padding: 0.75rem 1.25rem; /* Adjusts padding */
-    border-radius: 0.375rem; /* Adjusts border radius if needed */
+    font-size: 1.1rem;
+    padding-inline: 1rem;
+    border-radius: 0.375rem;
     width: 100%;
     box-sizing: border-box;
   }
 
   .list-group-item {
+    .btn {
+      padding: 0.25rem 0.3rem;
+      font-size: 0.7rem; // Even smaller font size
+      margin-left: 0.1rem; // Reduced space between buttons
+    }
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding-inline: 0.5rem;
+    padding-block: 0.7rem;
+    border: 1px solid #ddd; /* Optional: Add a border for better definition */
+    border-radius: 0.25rem; /* Optional: Add border-radius for rounded corners */
+    margin-bottom: 0.5rem;
+  }
+
+  .task-text {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: calc(100% - 10px); /* Adjust as needed */
+    margin-right: 0.5rem;
+  }
+
+  .task-text:hover::after {
+    content: attr(data-fulltext);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: #333;
+    color: #fff;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    white-space: normal;
+    z-index: 10;
+    width: auto;
+    max-width: 500px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: block;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    border: none;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem; // Slightly smaller font size for better fit
+    margin-left: 0.5rem; // Space between buttons
+  }
+
+  .button-container {
+    display: flex;
+    align-items: center;
   }
 
   .edit-btn {
-    margin-left: 0.5rem;
-    border: none;
     background-color: #6c757d; // Bootstrap secondary color
     color: white;
   }
@@ -67,12 +129,17 @@ body {
     background-color: #5a6268; // Darker shade on hover
   }
 
-  .form-check-input {
-    margin-right: 1rem; /* Adds margin to the right of the checkbox */
+  .delete-btn {
+    background-color: #dc3545; // Bootstrap danger color
+    color: white;
   }
 
-  .task-text {
-    flex-grow: 1;
+  .delete-btn:hover {
+    background-color: #c82333; // Darker shade on hover
+  }
+
+  .form-check-input {
+    margin-right: 1rem; // Adds margin to the right of the checkbox
   }
 
   .row > div {

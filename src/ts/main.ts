@@ -10,17 +10,13 @@ function createTaskItem(
   const li = document.createElement("li");
   li.className = "list-group-item d-flex align-items-center";
   li.innerHTML = `
-       <input type="checkbox" class="form-check-input me-2" ${
-         isChecked ? "checked" : ""
-       }>
-       <span class="task-text">${taskText}</span>
-       ${
-         isMobile
-           ? '<button class="btn btn-danger btn-sm ms-2 delete-btn">Delete</button>'
-           : ""
-       }
-       <button class="btn btn-secondary btn-sm ms-2 edit-btn">Edit</button>
-     `;
+  <input type="checkbox" class="form-check-input me-2" ${isChecked ? "checked" : ""}>
+  <span class="task-text">${taskText}</span>
+  <div class="button-container">
+    <button class="btn btn-danger btn-sm delete-btn">Delete</button>
+    <button class="btn btn-secondary btn-sm edit-btn">Edit</button>
+  </div>
+`;
 
   const checkbox = li.querySelector(".form-check-input") as HTMLInputElement;
   checkbox.addEventListener("change", () => {
@@ -31,17 +27,16 @@ function createTaskItem(
     }
   });
 
+  const deleteBtn = li.querySelector(".delete-btn") as HTMLButtonElement;
+  deleteBtn.addEventListener("click", () => {
+    li.remove();
+    saveTasks(); // Save tasks to local storage after deletion
+  });
+
   const editBtn = li.querySelector(".edit-btn") as HTMLButtonElement;
   editBtn.addEventListener("click", () => {
     editTask(li);
   });
-
-  if (isMobile) {
-    const deleteBtn = li.querySelector(".delete-btn") as HTMLButtonElement;
-    deleteBtn.addEventListener("click", () => {
-      li.remove();
-    });
-  }
 
   return li;
 }
@@ -60,25 +55,11 @@ function editTask(taskItem: HTMLLIElement) {
   input.focus();
 
   // Create and insert the save button
-  const saveBtn = document.createElement("button");
-  saveBtn.className = "btn btn-primary btn-sm ms-2";
-  saveBtn.textContent = "Save";
+  const saveBtn = createSaveButton(taskItem, input, taskTextElement);
   taskItem.replaceChild(
     saveBtn,
     taskItem.querySelector(".edit-btn") as HTMLButtonElement
   );
-
-  saveBtn.addEventListener("click", () => {
-    const newText = input.value.trim();
-    if (newText !== "") {
-      // Update the text content and switch back to the original view
-      taskTextElement.textContent = newText;
-      taskItem.replaceChild(taskTextElement, input);
-
-      // Reinsert the edit button
-      taskItem.replaceChild(createEditButton(), saveBtn);
-    }
-  });
 
   input.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
@@ -87,24 +68,61 @@ function editTask(taskItem: HTMLLIElement) {
   });
 }
 
+function createSaveButton(
+  taskItem: HTMLLIElement,
+  input: HTMLInputElement,
+  taskTextElement: HTMLSpanElement
+): HTMLButtonElement {
+  const saveBtn = document.createElement("button");
+  saveBtn.className = "btn btn-primary btn-sm ms-2";
+  saveBtn.textContent = "Save";
+
+  saveBtn.addEventListener("click", () => {
+    const newText = input.value.trim();
+    if (newText !== "") {
+      taskTextElement.textContent = newText;
+      taskItem.replaceChild(taskTextElement, input);
+      const editBtn = createEditButton();
+      taskItem.replaceChild(editBtn, saveBtn);
+      // Reattach event listener for the new edit button
+      editBtn.addEventListener("click", () => editTask(taskItem));
+      saveTasks(); // Save tasks to local storage after editing
+    }
+  });
+
+  return saveBtn;
+}
+
 // Helper function to create an edit button
 function createEditButton(): HTMLButtonElement {
-     const editBtn = document.createElement('button');
-     editBtn.className = 'btn btn-secondary btn-sm ms-2 edit-btn';
-     editBtn.textContent = 'Edit';
-     return editBtn;
-   }
+  const editBtn = document.createElement("button");
+  editBtn.className = "btn btn-secondary btn-sm ms-2 edit-btn";
+  editBtn.textContent = "Edit";
+  return editBtn;
+}
 
 // Function to add a task
-function addTask(inputId: string, listId: string, isMobile: boolean = false) {
-  const taskInput = document.getElementById(inputId) as HTMLInputElement;
+// Updated function to add a task with task text parameter
+function addTask(
+  inputId: string,
+  listId: string,
+  isMobile: boolean = false,
+  taskText: string | null = null
+) {
   const taskList = document.getElementById(listId) as HTMLUListElement;
-  const taskText = taskInput.value.trim();
-  if (taskText === "") return;
+  const taskInput = document.getElementById(inputId) as HTMLInputElement;
 
-  const taskItem = createTaskItem(taskText, false, isMobile);
+  // If taskText is provided, use it; otherwise, get value from input
+  const text = taskText || taskInput.value.trim();
+  if (text === "") return;
+
+  const taskItem = createTaskItem(text, false, isMobile);
   taskList.appendChild(taskItem);
-  taskInput.value = "";
+  if (!taskText) {
+    taskInput.value = "";
+  }
+
+  saveTasks(); // Save tasks to local storage after adding
 }
 
 // Function to move a task to the Done list
@@ -118,6 +136,7 @@ function moveToDone(taskItem: HTMLLIElement, isMobile: boolean) {
     isMobile
   );
   doneTaskList.appendChild(doneItem);
+  saveTasks(); // Save tasks to local storage after moving
 }
 
 // Function to move a task back to the Todo list
@@ -131,9 +150,83 @@ function moveToTodo(taskItem: HTMLLIElement, isMobile: boolean) {
     isMobile
   );
   taskList.appendChild(todoItem);
+  saveTasks(); // Save tasks to local storage after moving
+}
+
+// Save tasks to local storage
+function saveTasks() {
+  // Save tasks for desktop
+  const todoTasksDesktop = Array.from(
+    document.querySelectorAll("#taskListDesktop .task-text")
+  ).map((task) => task.textContent || "");
+  const doneTasksDesktop = Array.from(
+    document.querySelectorAll("#doneTaskListDesktop .task-text")
+  ).map((task) => task.textContent || "");
+
+  localStorage.setItem("todoTasksDesktop", JSON.stringify(todoTasksDesktop));
+  localStorage.setItem("doneTasksDesktop", JSON.stringify(doneTasksDesktop));
+
+  console.log("Saved desktop tasks:", {
+    todoTasksDesktop,
+    doneTasksDesktop,
+  });
+
+  // Save tasks for mobile
+  const todoTasksMobile = Array.from(
+    document.querySelectorAll("#taskListMobile .task-text")
+  ).map((task) => task.textContent || "");
+  const doneTasksMobile = Array.from(
+    document.querySelectorAll("#doneTaskListMobile .task-text")
+  ).map((task) => task.textContent || "");
+
+  localStorage.setItem("todoTasksMobile", JSON.stringify(todoTasksMobile));
+  localStorage.setItem("doneTasksMobile", JSON.stringify(doneTasksMobile));
+
+  console.log("Saved mobile tasks:", {
+    todoTasksMobile,
+    doneTasksMobile,
+  });
+}
+
+// Load tasks from local storage
+function loadTasks() {
+  // Load tasks for desktop
+  const todoTasksDesktop: string[] = JSON.parse(
+    localStorage.getItem("todoTasksDesktop") || "[]"
+  );
+  const doneTasksDesktop: string[] = JSON.parse(
+    localStorage.getItem("doneTasksDesktop") || "[]"
+  );
+
+  todoTasksDesktop.forEach((task: string) =>
+    addTask("taskInputDesktop", "taskListDesktop", false, task)
+  );
+  doneTasksDesktop.forEach((task: string) =>
+    addTask("taskInputDesktop", "doneTaskListDesktop", false, task)
+  );
+
+  // Load tasks for mobile
+  const todoTasksMobile: string[] = JSON.parse(
+    localStorage.getItem("todoTasksMobile") || "[]"
+  );
+  const doneTasksMobile: string[] = JSON.parse(
+    localStorage.getItem("doneTasksMobile") || "[]"
+  );
+
+  console.log("Todo tasks for mobile:", todoTasksMobile);
+  console.log("Done tasks for mobile:", doneTasksMobile);
+
+  todoTasksMobile.forEach((task: string) =>
+    addTask("taskInputMobile", "taskListMobile", true, task)
+  );
+  doneTasksMobile.forEach((task: string) =>
+    addTask("taskInputMobile", "doneTaskListMobile", true, task)
+  );
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  loadTasks(); // Load tasks when the page is loaded
+
   // Desktop view
   const addTaskBtnDesktop = document.getElementById(
     "addTaskBtnDesktop"
@@ -167,4 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
       addTask("taskInputMobile", "taskListMobile", true);
     }
   });
+
+  // Save tasks when the page is unloaded
+  window.addEventListener("beforeunload", saveTasks);
 });
